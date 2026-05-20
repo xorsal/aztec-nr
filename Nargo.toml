@@ -19,4 +19,5 @@ members = [
   "composition_tests/storage_merge_transitive",
   "composition_tests/storage_merge_diamond",
   "composition_tests/ownable_pausable_counter",
+  "composition_tests/storage_merge_three_way",
 ]
