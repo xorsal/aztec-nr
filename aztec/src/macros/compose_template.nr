@@ -48,7 +48,7 @@ comptime fn contains_field(values: [Field], value: Field) -> bool {
 
 // Returns all template ids reachable from `template_keys`, preserving first-seen order and
 // deduplicating entries as they are discovered.
-comptime fn flatten_template_keys(template_keys: [Field]) -> [Field] {
+pub(crate) comptime fn flatten_template_keys(template_keys: [Field]) -> [Field] {
     let mut pending = template_keys;
     let mut processed = @[];
 
@@ -474,4 +474,177 @@ pub(crate) comptime fn get_composed_templates_quoted(
     }
 
     (all_functions, all_abi_exports, all_events)
+}
+
+// -----------------------------------------------------------------------------
+// Storage merge: synthesize a `ComposedStorage<Context>` struct merging the
+// host's own `#[storage]` fields with every (transitively) composed template's
+// `#[storage]` fields. Function-body re-emitters route `Storage::init(...)` to
+// `ComposedStorage::init(...)` (see `storage_struct_name_for` below), so
+// template-captured bodies that read `self.storage.<name>` resolve against the
+// host's merged struct at replay time.
+// -----------------------------------------------------------------------------
+
+/// Returns the struct name the function-body re-emitters use for `<Name>::init(...)`. Every contract running through
+/// `#[aztec]` with at least one storage-bearing module (its own `#[storage]` struct or a composed template's) gets a
+/// `ComposedStorage` synthesized, so this unconditionally returns `ComposedStorage`. Templates' pre-captured bodies
+/// containing `ComposedStorage::init(context)` resolve against the host's merged struct at replay time, which is
+/// what makes the storage merge work.
+pub(crate) comptime fn storage_struct_name_for(_m: Module) -> Quoted {
+    quote { ComposedStorage }
+}
+
+/// Returns the first `#[storage]` (or `#[storage_no_init]`) struct in `m`, or `Option::none()` if the module has no
+/// storage struct. Used by `generate_composed_storage_quoted` to support pure-mixin hosts that compose a storage-
+/// bearing template but declare no storage of their own.
+comptime fn find_storage_struct(m: Module) -> Option<TypeDefinition> {
+    let candidates = m.structs().filter(|s: TypeDefinition| {
+        s.has_named_attribute("storage") | s.has_named_attribute("storage_no_init")
+    });
+    if candidates.len() == 0 {
+        Option::none()
+    } else {
+        Option::some(candidates[0])
+    }
+}
+
+/// Compares two `Type`s by their source-text representation. Type equality (`==`) considers the type variables they
+/// carry, so `PublicMutable<AztecAddress, Context>` from one template's struct and the textually-identical type from
+/// another template's struct compare unequal because each carries a different `Context` binding. Comparing the string
+/// form ignores that and matches the user intent ("the field shapes are the same").
+comptime fn types_match(a: Type, b: Type) -> bool {
+    let qa: Quoted = f"{a}".quoted_contents();
+    let qb: Quoted = f"{b}".quoted_contents();
+    qa == qb
+}
+
+/// Synthesizes `pub struct ComposedStorage<Context>` + its `init` impl, containing the union of the host's storage
+/// fields and every (transitively) composed template's storage fields. Composed-template fields come first
+/// (in `flatten_template_keys` traversal order); the host's own fields are appended after. Same-name fields are
+/// deduplicated when their types match exactly and rejected with a panic when they don't.
+///
+/// Called from `#[aztec]` whenever the host module has a `#[storage]` struct OR composes at least one storage-bearing
+/// template. The resulting Quoted is emitted alongside (and supersedes for replay purposes) the legacy `Storage::init`
+/// the `#[storage]` macro produces - the function-body re-emitters call `ComposedStorage::init` via
+/// `storage_struct_name_for`.
+///
+/// Pure-mixin host support: if the host has no `#[storage]` struct, the host-field merge step is skipped and only
+/// the (transitive) composed templates contribute fields. The host's `Storage::init` is never reached because there
+/// is no `Storage` struct to begin with.
+///
+/// Note: the contract ABI's `StorageLayoutFields` continues to reflect only the host's own fields (emitted by
+/// `#[storage]`). Extending it to mirror the merge is intentionally deferred to a follow-up commit; composed
+/// templates' runtime behavior is fully preserved because function bodies access fields through
+/// `self.storage.<name>`, which resolves against the merged `ComposedStorage`.
+pub(crate) comptime fn generate_composed_storage_quoted(host: Module, template_keys: [Field]) -> Quoted {
+    let mut merged_names: [Quoted] = &[];
+    let mut merged_pairs: [(Quoted, Type)] = &[];
+
+    // Templates' fields first, walking the transitive composition graph so diamond/transitive shapes
+    // (host -> A -> B with B holding storage) merge correctly.
+    let flattened = flatten_template_keys(template_keys);
+    for template_key in flattened {
+        let template_module_opt = template_registry::get_template_module(template_key);
+        assert(template_module_opt.is_some(), "compose: template module missing from registry");
+        let template_module = template_module_opt.unwrap();
+        let template_storage_opt = find_storage_struct(template_module);
+        if template_storage_opt.is_some() {
+            for field in template_storage_opt.unwrap().fields_as_written() {
+                let (fname, ftyp, _) = field;
+                let mut already_present = false;
+                for i in 0..merged_names.len() {
+                    if merged_names[i] == fname {
+                        let (_existing_name, existing_typ) = merged_pairs[i];
+                        if !types_match(existing_typ, ftyp) {
+                            panic(
+                                f"compose: storage field {fname} is declared with conflicting types across composed templates",
+                            )
+                        }
+                        already_present = true;
+                    }
+                }
+                if !already_present {
+                    merged_names = merged_names.push_back(fname);
+                    merged_pairs = merged_pairs.push_back((fname, ftyp));
+                }
+            }
+        }
+    }
+
+    // Host fields appended after templates. Same-name+same-type host-vs-template is treated like the
+    // template-vs-template case: the field is deduped (the host's declaration "wins" but the slot/type is identical so
+    // there is nothing to choose). This lets read-only "view" templates declare fields they intend to read via
+    // `self.storage.<name>` so their bodies type-check standalone, without forcing the host to drop its declaration.
+    // Different type for the same name is still a hard error - silent shadowing would let the host trash invariants
+    // the template relies on.
+    let host_storage_opt = find_storage_struct(host);
+    if host_storage_opt.is_some() {
+        for field in host_storage_opt.unwrap().fields_as_written() {
+            let (fname, ftyp, _) = field;
+            let mut already_present = false;
+            for i in 0..merged_names.len() {
+                if merged_names[i] == fname {
+                    let (_existing_name, existing_typ) = merged_pairs[i];
+                    if !types_match(existing_typ, ftyp) {
+                        panic(
+                            f"compose: host storage field {fname} collides with a composed template field of the same name and a different type",
+                        )
+                    }
+                    already_present = true;
+                }
+            }
+            if !already_present {
+                merged_names = merged_names.push_back(fname);
+                merged_pairs = merged_pairs.push_back((fname, ftyp));
+            }
+        }
+    }
+
+    // Walk the merged list and assign slots linearly, mirroring the allocator in storage.nr.
+    let mut slot: u32 = 1;
+    let mut struct_fields_quoted = &[];
+    let mut init_fields_quoted = &[];
+
+    for pair in merged_pairs {
+        let (fname, ftyp) = pair;
+
+        let maybe_storage_size = std::meta::typ::fresh_type_variable();
+        let _maybe_context = std::meta::typ::fresh_type_variable();
+        if !ftyp.implements(quote { crate::state_vars::StateVariable<$maybe_storage_size, $_maybe_context> }
+            .as_trait_constraint()) {
+            panic(
+                f"compose: storage field {fname} of type {ftyp} does not implement StateVariable and cannot live in ComposedStorage",
+            )
+        }
+        let storage_size = maybe_storage_size.as_constant().unwrap();
+        let slot_as_field = slot as Field;
+
+        // Splice the type as source text rather than as a Type value: the Type retains its original generic bindings
+        // (the user's struct's `<Context>`), so splicing it directly leaves `Context` unbound in our impl. Going
+        // through `f"{ftyp}".quoted_contents()` yields the same source token stream the user wrote, where `Context`
+        // rebinds to our `impl<Context> ComposedStorage<Context>` generic at name-resolution time.
+        let ftyp_source = f"{ftyp}".quoted_contents();
+        struct_fields_quoted = struct_fields_quoted.push_back(quote { pub $fname: $ftyp_source });
+        init_fields_quoted = init_fields_quoted.push_back(
+            quote { $fname: aztec::state_vars::StateVariable::<$storage_size, Context>::new(context, $slot_as_field) },
+        );
+        slot += storage_size;
+    }
+
+    let struct_fields_q = struct_fields_quoted.join(quote {,});
+    let init_fields_q = init_fields_quoted.join(quote {,});
+
+    quote {
+        pub struct ComposedStorage<Context> {
+            $struct_fields_q
+        }
+
+        impl<Context> ComposedStorage<Context> {
+            fn init(context: Context) -> Self {
+                Self {
+                    $init_fields_q
+                }
+            }
+        }
+    }
 }
