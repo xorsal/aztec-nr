@@ -8,7 +8,7 @@
 use crate::macros::{
     internals_functions_generation::{external_functions_registry, internal_functions_registry},
     template_registry,
-    utils::compute_fn_selector,
+    utils::{compute_fn_selector, module_has_storage},
 };
 use crate::utils::cmap::CHashMap;
 
@@ -532,6 +532,32 @@ pub(crate) comptime fn get_composed_templates_quoted(
 /// what makes the storage merge work.
 pub(crate) comptime fn storage_struct_name_for(_m: Module) -> Quoted {
     quote { ComposedStorage }
+}
+
+/// Returns true when `m` itself has a `#[storage]` / `#[storage_no_init]` struct, OR when `m` composes (directly or
+/// transitively) at least one template that does. The host's composed-template list is recovered from
+/// `template_registry` (recorded by `#[aztec]` when the host's config has templates). Used by `#[aztec]` to decide
+/// whether to emit a `ComposedStorage`, and by the function-body re-emitters to decide whether to emit
+/// `let storage = ComposedStorage::init(...)` for pure-mixin hosts.
+pub(crate) comptime fn module_has_effective_storage(m: Module) -> bool {
+    if module_has_storage(m) {
+        true
+    } else {
+        let composed_keys_opt = template_registry::get_template_composed_keys_by_module(m);
+        if composed_keys_opt.is_none() {
+            false
+        } else {
+            let flattened = flatten_template_keys(composed_keys_opt.unwrap());
+            let mut found = false;
+            for template_key in flattened {
+                let template_module_opt = template_registry::get_template_module(template_key);
+                if template_module_opt.is_some() & module_has_storage(template_module_opt.unwrap()) {
+                    found = true;
+                }
+            }
+            found
+        }
+    }
 }
 
 /// Returns the first `#[storage]` (or `#[storage_no_init]`) struct in `m`, or `Option::none()` if the module has no
