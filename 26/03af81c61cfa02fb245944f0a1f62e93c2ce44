@@ -1,0 +1,35 @@
+aztec/src/macros/internals_functions_generation/external/public.nr
+  s_cbf105d8ade306::t_ecd1f4ff02017c 2,6
+  s_cbf105d8ade306::t_11f3324f3b832d 12
+  s_cbf105d8ade306::t_5d3680cbd4bb19 33,35
+aztec/src/macros/internals_functions_generation/external/utility.nr
+  s_cbf105d8ade306::t_913a9e6b7b09b7 1-2,7-9,11
+aztec/src/macros/internals_functions_generation/internal.nr
+  s_cbf105d8ade306::t_d97e0df46abf85 1
+  s_cbf105d8ade306::t_2bb1633de199c0 19-20,22,70-71,73
+composition_failure_tests/failure_contracts/storage_shape_mismatch/expected_error.txt
+  s_cbf105d8ade306::t_d3cd3966d2b9e2 1
+aztec/src/macros/internals_functions_generation/external/private.nr
+  s_cbf105d8ade306::t_bef468d1a837c0 15
+  s_cbf105d8ade306::t_48bc41469dd84a 2,7
+  s_cbf105d8ade306::t_2edd14ab5ca44b 34-36,38
+aztec/src/macros/compose_template.nr
+  s_cbf105d8ade306::t_597eddb2780361 690-698
+  s_cbf105d8ade306::t_072fc9dd8a8f87 547-588
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.10",
+  "base_commit_sha": "2603af81c61cfa02fb245944f0a1f62e93c2ce44",
+  "prompts": {},
+  "sessions": {
+    "s_cbf105d8ade306": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "4c6a1162-8763-4fac-a11d-84dea3e0604d",
+        "model": "claude-opus-4-7"
+      },
+      "human_author": "xorsal <zorzal@wonderland.xyz>"
+    }
+  }
+}
