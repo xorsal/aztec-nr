@@ -12,4 +12,10 @@ members = [
   "composition_tests/host",
   "composition_tests/override",
   "composition_tests/diamond_transitive",
+  "composition_tests/storage_merge_basic",
+  "composition_tests/storage_merge_pure_mixin",
+  "composition_tests/storage_merge_dedup",
+  "composition_tests/storage_merge_multi",
+  "composition_tests/storage_merge_transitive",
+  "composition_tests/storage_merge_diamond",
 ]
