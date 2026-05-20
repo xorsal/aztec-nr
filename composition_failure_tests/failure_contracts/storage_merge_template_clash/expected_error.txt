@@ -1,0 +1,1 @@
+compose: storage field counter is declared with conflicting types across composed templates

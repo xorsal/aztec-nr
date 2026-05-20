@@ -34,6 +34,12 @@ jobs:
           aztec compile --package composition_host_contract
           aztec compile --package composition_override_contract
           aztec compile --package composition_diamond_transitive_contract
+          aztec compile --package storage_merge_basic_contract
+          aztec compile --package storage_merge_pure_mixin_contract
+          aztec compile --package storage_merge_dedup_contract
+          aztec compile --package storage_merge_multi_contract
+          aztec compile --package storage_merge_transitive_contract
+          aztec compile --package storage_merge_diamond_contract
 
       - name: Run Noir tests
         run: |
@@ -42,6 +48,12 @@ jobs:
           aztec test --package composition_host_contract
           aztec test --package composition_override_contract
           aztec test --package composition_diamond_transitive_contract
+          aztec test --package storage_merge_basic_contract
+          aztec test --package storage_merge_pure_mixin_contract
+          aztec test --package storage_merge_dedup_contract
+          aztec test --package storage_merge_multi_contract
+          aztec test --package storage_merge_transitive_contract
+          aztec test --package storage_merge_diamond_contract
 
   compilation-failure-tests:
     name: Compilation Failure Tests
