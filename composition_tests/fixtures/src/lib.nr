@@ -23,3 +23,5 @@ pub mod storage_merge_leaf_template;
 pub mod storage_merge_mid_template;
 pub mod storage_merge_mid_left_template;
 pub mod storage_merge_mid_right_template;
+pub mod aztec_ownable_mixin;
+pub mod aztec_pausable_mixin;
