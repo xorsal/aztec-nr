@@ -19,6 +19,7 @@ members = [
   "composition_tests/storage_merge_transitive",
   "composition_tests/storage_merge_diamond",
   "composition_tests/ownable_pausable_counter",
+  "composition_tests/storage_merge_three_way",
   "composition_failure_tests/failure_contracts/collision_no_override",
   "composition_failure_tests/failure_contracts/event_collision_across_templates",
   "composition_failure_tests/failure_contracts/event_host_redeclares",

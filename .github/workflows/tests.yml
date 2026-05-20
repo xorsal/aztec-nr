@@ -41,6 +41,7 @@ jobs:
           aztec compile --package storage_merge_transitive_contract
           aztec compile --package storage_merge_diamond_contract
           aztec compile --package ownable_pausable_counter_contract
+          aztec compile --package storage_merge_three_way_contract
 
       - name: Run Noir tests
         run: |
@@ -56,6 +57,7 @@ jobs:
           aztec test --package storage_merge_transitive_contract
           aztec test --package storage_merge_diamond_contract
           aztec test --package ownable_pausable_counter_contract
+          aztec test --package storage_merge_three_way_contract
 
   compilation-failure-tests:
     name: Compilation Failure Tests
