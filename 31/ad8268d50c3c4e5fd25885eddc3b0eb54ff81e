@@ -1,0 +1,22 @@
+aztec/src/macros/compose_template.nr
+  s_cbf105d8ade306::t_431b79a68a9762 11
+  s_cbf105d8ade306::t_86c60c3f5fec0a 497-522
+aztec/src/macros/aztec.nr
+  s_cbf105d8ade306::t_93a74887d6668b 284-293,299
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.10",
+  "base_commit_sha": "31ad8268d50c3c4e5fd25885eddc3b0eb54ff81e",
+  "prompts": {},
+  "sessions": {
+    "s_cbf105d8ade306": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "4c6a1162-8763-4fac-a11d-84dea3e0604d",
+        "model": "claude-opus-4-7"
+      },
+      "human_author": "xorsal <zorzal@wonderland.xyz>"
+    }
+  }
+}
