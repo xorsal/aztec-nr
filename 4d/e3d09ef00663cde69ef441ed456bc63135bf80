@@ -1,0 +1,24 @@
+aztec/src/macros/utils.nr
+  s_cbf105d8ade306::t_d1bf9b8267694f 46-49
+aztec/src/macros/functions/mod.nr
+  s_cbf105d8ade306::t_ccd56f51db1ef2 11
+  s_cbf105d8ade306::t_8753a8857f309e 342-373
+aztec/src/macros/functions/auth_registry.nr
+  s_cbf105d8ade306::t_9c9f962a6970c0 10-17
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.10",
+  "base_commit_sha": "4de3d09ef00663cde69ef441ed456bc63135bf80",
+  "prompts": {},
+  "sessions": {
+    "s_cbf105d8ade306": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "4c6a1162-8763-4fac-a11d-84dea3e0604d",
+        "model": "claude-opus-4-7"
+      },
+      "human_author": "xorsal <zorzal@wonderland.xyz>"
+    }
+  }
+}
