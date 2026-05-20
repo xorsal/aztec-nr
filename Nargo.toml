@@ -17,7 +17,6 @@ members = [
   "composition_failure_tests/failure_contracts/event_host_redeclares",
   "composition_failure_tests/failure_contracts/host_global_scope_resolved_limit",
   "composition_failure_tests/failure_contracts/internal_override_non_virtual",
-  "composition_failure_tests/failure_contracts/missing_storage_var",
   "composition_failure_tests/failure_contracts/override_mid_template_local_fee_bps",
   "composition_failure_tests/failure_contracts/override_transitive_collision_without_override",
   "composition_failure_tests/failure_contracts/override_transitive_missing_direct_compose",

@@ -544,6 +544,48 @@ comptime fn types_match(a: Type, b: Type) -> bool {
     qa == qb
 }
 
+/// Rewrites a Quoted source-text type expression by prepending `aztec::state_vars::` to bare aztec state-variable
+/// names that appear as identifier tokens. This makes the spliced type resolve in any host module regardless of the
+/// host's `use` statements (the synthesized `ComposedStorage` is emitted in the host's module, but its field types
+/// come from composed templates' modules where `use aztec::state_vars::...` was written by the template author).
+///
+/// The token-level rewrite preserves nested generic structure: `Map<AztecAddress, PublicMutable<u32, Context>,
+/// Context>` becomes `aztec::state_vars::Map<AztecAddress, aztec::state_vars::PublicMutable<u32, Context>, Context>`.
+/// Identifiers already qualified (e.g. `aztec::state_vars::Map`) are left alone because the prior `::` token signals
+/// the bare-name lookup is already resolved.
+///
+/// New state-variable kinds added to `aztec::state_vars` need to be added to the `BARE_STATE_VARS` list below.
+comptime fn qualify_state_var_paths(source: Quoted) -> Quoted {
+    let bare_state_vars: [Quoted] = &[
+        quote { DelayedPublicMutable }, quote { Map }, quote { Owned }, quote { OwnedStateVariable },
+        quote { PrivateImmutable }, quote { PrivateMutable }, quote { PrivateSet }, quote { PublicImmutable },
+        quote { PublicMutable }, quote { SinglePrivateImmutable }, quote { SinglePrivateMutable },
+        quote { SingleUseClaim }, quote { StateVariable }, quote { Storable },
+    ];
+
+    let tokens = source.tokens();
+    let mut out: Quoted = quote {};
+    let mut prev_was_colon: bool = false;
+
+    for tok in tokens {
+        // If the previous token closed a `::`, this token is the right-hand side of a path and must not be rewritten.
+        // Conservative heuristic: a `::` immediately before an identifier means it was already qualified upstream.
+        let is_colon: bool = tok == quote { :: };
+
+        let mut next_tok: Quoted = tok;
+        if !prev_was_colon {
+            for bare in bare_state_vars {
+                if tok == bare {
+                    next_tok = quote { aztec::state_vars::$bare };
+                }
+            }
+        }
+        out = quote { $out $next_tok };
+        prev_was_colon = is_colon;
+    }
+    out
+}
+
 /// Synthesizes `pub struct ComposedStorage<Context>` + its `init` impl, containing the union of the host's storage
 /// fields and every (transitively) composed template's storage fields. Composed-template fields come first
 /// (in `flatten_template_keys` traversal order); the host's own fields are appended after. Same-name fields are
@@ -645,11 +687,15 @@ pub(crate) comptime fn generate_composed_storage_quoted(host: Module, template_k
         let storage_size = maybe_storage_size.as_constant().unwrap();
         let slot_as_field = slot as Field;
 
-        // Splice the type as source text rather than as a Type value: the Type retains its original generic bindings
-        // (the user's struct's `<Context>`), so splicing it directly leaves `Context` unbound in our impl. Going
-        // through `f"{ftyp}".quoted_contents()` yields the same source token stream the user wrote, where `Context`
-        // rebinds to our `impl<Context> ComposedStorage<Context>` generic at name-resolution time.
-        let ftyp_source = f"{ftyp}".quoted_contents();
+        // Splice the type as source text rather than as a `Type` value: the original `Type` carries its declaring
+        // struct's `<Context>` binding, so a direct `$ftyp` splice leaves `Context` bound to the template's generic
+        // instead of our `ComposedStorage<Context>` generic and the StateVariable trait constraint fails to unify.
+        // Source-text splicing re-resolves names against the host module's scope, but the names are bare
+        // (`PublicMutable`, `Map`, ...) and the host may not have `use aztec::state_vars::...` in scope (pure-mixin
+        // hosts, view templates). `qualify_state_var_paths` walks the token stream and rewrites bare aztec state-var
+        // names to their fully-qualified `aztec::state_vars::Foo` form so name resolution succeeds regardless of the
+        // host's imports.
+        let ftyp_source = qualify_state_var_paths(f"{ftyp}".quoted_contents());
         struct_fields_quoted = struct_fields_quoted.push_back(quote { pub $fname: $ftyp_source });
         init_fields_quoted = init_fields_quoted.push_back(
             quote { $fname: aztec::state_vars::StateVariable::<$storage_size, Context>::new(context, $slot_as_field) },

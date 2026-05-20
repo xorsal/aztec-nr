@@ -1,14 +1,15 @@
 use crate::macros::{
+    compose_template::{module_has_effective_storage, storage_struct_name_for},
     internals_functions_generation::external::helpers::{create_authorize_once_check, get_abi_relevant_attributes},
     utils::{
         fn_has_authorize_once, fn_has_noinitcheck, is_fn_initializer, is_fn_only_self, is_fn_view,
-        module_has_initializer, module_has_storage,
+        module_has_initializer,
     },
 };
 
 pub(crate) comptime fn generate_public_external(f: FunctionDefinition) -> Quoted {
     let module_has_initializer = module_has_initializer(f.module());
-    let module_has_storage = module_has_storage(f.module());
+    let module_has_storage = module_has_effective_storage(f.module());
 
     // Public functions undergo a lot of transformations from their Aztec.nr form.
     let original_params = f.parameters();
@@ -29,8 +30,9 @@ pub(crate) comptime fn generate_public_external(f: FunctionDefinition) -> Quoted
     };
 
     let storage_init = if module_has_storage {
+        let storage_name = storage_struct_name_for(f.module());
         quote {
-            let storage = Storage::init(context);
+            let storage = $storage_name::init(context);
         }
     } else {
         // Contract does not have Storage defined, so we set storage to the unit type `()`. ContractSelfPublic requires
