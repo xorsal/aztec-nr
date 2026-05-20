@@ -8,7 +8,7 @@ use crate::macros::{
     utils::{is_fn_external, is_fn_internal, module_has_initializer},
 };
 use super::utils::{fn_has_allow_phase_change, fn_has_noinitcheck, is_fn_initializer, is_fn_only_self, is_fn_view};
-use auth_registry::AUTHORIZE_ONCE_REGISTRY;
+use auth_registry::{AUTHORIZE_ONCE_REGISTRY, ONLY_OWNER_REGISTRY};
 use initialization_utils::EMIT_PUBLIC_INIT_NULLIFIER_FN_NAME;
 
 // Functions can have multiple attributes applied to them, e.g. a single function can have #[external("public")],
@@ -337,6 +337,38 @@ pub comptime fn authorize_once(f: FunctionDefinition, from_arg_name: CtString, n
     }
 
     AUTHORIZE_ONCE_REGISTRY.insert(f, (from_arg_name, nonce_arg_name));
+}
+
+/// Restricts an `#[external("public")]` function to be callable only by the contract's stored owner.
+///
+/// The check `_assert_only_owner(self.msg_sender(), self.storage.owner.read())` is injected at the start of the
+/// function body by the `#[external("public")]` macro (so the function name, the owner field, and the check helper
+/// must all be in scope). The intended usage pattern is composing an `aztec_ownable_mixin` template that:
+/// - declares `owner: PublicMutable<AztecAddress, Context>` in its `#[storage]` so the storage merger contributes it
+///   to the host's `ComposedStorage`,
+/// - provides `_assert_only_owner` as a `#[contract_library_method]` so it migrates into the host scope at template
+///   composition time.
+///
+/// ```noir
+/// use aztec_ownable_mixin::only_owner;
+///
+/// #[only_owner]
+/// #[external("public")]
+/// fn pause() { ... }
+/// ```
+///
+/// Only valid on public functions in this version. Private functions can call `_assert_only_owner` manually after
+/// reading owner through a self.view(...) hop; the macro doesn't help there because reading PublicMutable from a
+/// private context isn't a one-liner. Applying `#[only_owner]` to a private function panics with a clear error.
+pub comptime fn only_owner(f: FunctionDefinition) {
+    if !is_fn_external(f) {
+        let name = f.name();
+        panic(
+            f"The #[only_owner] attribute can only be applied to #[external(\"public\")] functions - {name} is not external",
+        );
+    }
+
+    ONLY_OWNER_REGISTRY.insert(f, ());
 }
 
 /// An external function is callable from outside the contract.
