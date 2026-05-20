@@ -1,0 +1,37 @@
+composition_tests/fixtures/src/lib.nr
+  s_cbf105d8ade306::t_07a4410f662005 26-27
+composition_tests/ownable_pausable_counter/Nargo.toml
+  s_cbf105d8ade306::t_bf8062defad692 1-9
+.github/workflows/tests.yml
+  s_cbf105d8ade306::t_8da203f40b9c0b 43,58
+composition_tests/fixtures/src/aztec_pausable_mixin.nr
+  s_cbf105d8ade306::t_7bd72ee208f711 1-60
+composition_tests/ownable_pausable_counter/src/main.nr
+  s_cbf105d8ade306::t_2607c83e843a69 1-57
+composition_tests/ownable_pausable_counter/src/test/utils.nr
+  s_cbf105d8ade306::t_4c385dbe484d48 1-14
+composition_tests/fixtures/src/aztec_ownable_mixin.nr
+  s_cbf105d8ade306::t_f8762e4cde02af 1-50
+composition_tests/ownable_pausable_counter/src/test/mixins_compose.nr
+  s_cbf105d8ade306::t_49aba12c049be5 1-89
+Nargo.toml
+  s_cbf105d8ade306::t_f7600a2f5dca7a 21
+composition_tests/ownable_pausable_counter/src/test.nr
+  s_cbf105d8ade306::t_bf67615969ba2c 1-2
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.10",
+  "base_commit_sha": "29651a5d41b44deaa579c313d96fd9271a183983",
+  "prompts": {},
+  "sessions": {
+    "s_cbf105d8ade306": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "4c6a1162-8763-4fac-a11d-84dea3e0604d",
+        "model": "claude-opus-4-7"
+      },
+      "human_author": "xorsal <zorzal@wonderland.xyz>"
+    }
+  }
+}
