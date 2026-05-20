@@ -1,12 +1,14 @@
-use crate::macros::utils::{fn_has_noinitcheck, module_has_initializer, module_has_storage};
+use crate::macros::compose_template::{module_has_effective_storage, storage_struct_name_for};
+use crate::macros::utils::{fn_has_noinitcheck, module_has_initializer};
 
 pub(crate) comptime fn generate_utility_external(f: FunctionDefinition) -> Quoted {
     let module_has_initializer = module_has_initializer(f.module());
 
-    // Initialize Storage if module has storage
-    let storage_init = if module_has_storage(f.module()) {
+    // Initialize Storage if module has storage (own or composed via templates).
+    let storage_init = if module_has_effective_storage(f.module()) {
+        let storage_name = storage_struct_name_for(f.module());
         quote {
-            let storage = Storage::init(context);
+            let storage = $storage_name::init(context);
         }
     } else {
         // Contract does not have Storage defined, so we set storage to the unit type `()`. ContractSelfUtility

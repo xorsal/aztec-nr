@@ -1,9 +1,10 @@
 use crate::macros::{
+    compose_template::{module_has_effective_storage, storage_struct_name_for},
     functions::initialization_utils::has_public_init_checked_functions,
     internals_functions_generation::external::helpers::{create_authorize_once_check, get_abi_relevant_attributes},
     utils::{
         fn_has_allow_phase_change, fn_has_authorize_once, fn_has_noinitcheck, is_fn_initializer, is_fn_only_self,
-        is_fn_view, module_has_initializer, module_has_storage,
+        is_fn_view, module_has_initializer,
     },
 };
 use crate::protocol::meta::utils::derive_serialization_quotes;
@@ -11,7 +12,7 @@ use std::meta::type_of;
 
 pub(crate) comptime fn generate_private_external(f: FunctionDefinition) -> Quoted {
     let module_has_initializer = module_has_initializer(f.module());
-    let module_has_storage = module_has_storage(f.module());
+    let module_has_storage = module_has_effective_storage(f.module());
 
     // Private functions undergo a lot of transformations from their Aztec.nr form into a circuit that can be fed to
     // the Private Kernel Circuit. First we change the function signature so that it also receives
@@ -30,9 +31,11 @@ pub(crate) comptime fn generate_private_external(f: FunctionDefinition) -> Quote
     let (args_serialization, _, serialized_args_name) = derive_serialization_quotes(original_params, false);
 
     let storage_init = if module_has_storage {
-        // Contract has Storage defined so we initialize it.
+        // Contract has Storage defined so we initialize it. Route to the merged `ComposedStorage` synthesized by
+        // `#[aztec]` (every host with effective storage gets one - see `compose_template::storage_struct_name_for`).
+        let storage_name = storage_struct_name_for(f.module());
         quote {
-            let storage = Storage::init(&mut context);
+            let storage = $storage_name::init(&mut context);
         }
     } else {
         // Contract does not have Storage defined, so we set storage to the unit type `()`. ContractSelfPrivate

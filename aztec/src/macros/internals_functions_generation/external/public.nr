@@ -1,8 +1,9 @@
 use crate::macros::{
+    compose_template::{module_has_effective_storage, storage_struct_name_for},
     internals_functions_generation::external::helpers::{create_authorize_once_check, get_abi_relevant_attributes},
     utils::{
         fn_has_authorize_once, fn_has_noinitcheck, is_fn_initializer, is_fn_only_self, is_fn_view,
-        module_has_initializer, module_has_storage,
+        module_has_initializer,
     },
 };
 
@@ -16,8 +17,12 @@ use crate::macros::{
 /// fields from calldata. Noir monomorphizes one copy per distinct `N`, so public functions with the same number of
 /// serialized args reuse the same compiled code.
 pub(crate) comptime fn generate_public_self_creator(m: Module) -> Quoted {
-    let (storage_type, storage_init) = if module_has_storage(m) {
-        (quote { Storage<aztec::context::PublicContext> }, quote { let storage = Storage::init(context); })
+    let (storage_type, storage_init) = if module_has_effective_storage(m) {
+        let storage_name = storage_struct_name_for(m);
+        (
+            quote { $storage_name<aztec::context::PublicContext> },
+            quote { let storage = $storage_name::init(context); },
+        )
     } else {
         // Contract does not have Storage defined, so we set storage to the unit type `()`. ContractSelfPublic requires
         // a storage struct in its constructor. Using an Option type would lead to worse developer experience and
