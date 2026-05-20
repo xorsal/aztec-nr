@@ -11,6 +11,7 @@ use crate::macros::{
     utils::{compute_fn_selector, module_has_storage},
 };
 use crate::utils::cmap::CHashMap;
+use std::meta::unquote;
 
 comptime fn function_signature_key(f: FunctionDefinition) -> Field {
     compute_fn_selector(f.name(), f.parameters())
@@ -600,10 +601,12 @@ comptime fn qualify_state_var_paths(source: Quoted) -> Quoted {
 /// the (transitive) composed templates contribute fields. The host's `Storage::init` is never reached because there
 /// is no `Storage` struct to begin with.
 ///
-/// Note: the contract ABI's `StorageLayoutFields` continues to reflect only the host's own fields (emitted by
-/// `#[storage]`). Extending it to mirror the merge is intentionally deferred to a follow-up commit; composed
-/// templates' runtime behavior is fully preserved because function bodies access fields through
-/// `self.storage.<name>`, which resolves against the merged `ComposedStorage`.
+/// ABI: also emits a `ComposedStorageLayoutFields` struct, a `ComposedStorageLayout<N>` wrapper, and an
+/// `#[abi(storage)] pub global STORAGE_LAYOUT_COMPOSED_<Module>` so TS codegen sees the merged field set. Hosts that
+/// *also* declare their own `#[storage]` end up with two `#[abi(storage)]` globals in the artifact (the original
+/// host-only one from `#[storage]` and this composed one); pure-mixin hosts get only the composed one. TS codegen
+/// behavior with two storage layouts in a single contract artifact is intentionally left unverified by this commit;
+/// the synthesized data structure exists and downstream tooling can consume it once it knows how to.
 pub(crate) comptime fn generate_composed_storage_quoted(host: Module, template_keys: [Field]) -> Quoted {
     let mut merged_names: [Quoted] = &[];
     let mut merged_pairs: [(Quoted, Type)] = &[];
@@ -672,6 +675,8 @@ pub(crate) comptime fn generate_composed_storage_quoted(host: Module, template_k
     let mut slot: u32 = 1;
     let mut struct_fields_quoted = &[];
     let mut init_fields_quoted = &[];
+    let mut layout_struct_members = &[];
+    let mut layout_constructors = &[];
 
     for pair in merged_pairs {
         let (fname, ftyp) = pair;
@@ -700,11 +705,28 @@ pub(crate) comptime fn generate_composed_storage_quoted(host: Module, template_k
         init_fields_quoted = init_fields_quoted.push_back(
             quote { $fname: aztec::state_vars::StateVariable::<$storage_size, Context>::new(context, $slot_as_field) },
         );
+
+        // ABI: mirror storage.nr's StorageLayoutFields shape so TS codegen reads the same `{ slot: u32 }` member
+        // layout it already understands. The struct + global names are prefixed to avoid colliding with the original
+        // `#[storage]`-emitted ones; both globals carry `#[abi(storage)]` so downstream tooling can pick them up.
+        layout_struct_members =
+            layout_struct_members.push_back(quote { pub $fname: aztec::state_vars::Storable });
+        layout_constructors = layout_constructors.push_back(
+            quote { $fname: aztec::state_vars::Storable { slot: $slot_as_field } },
+        );
+
         slot += storage_size;
     }
 
     let struct_fields_q = struct_fields_quoted.join(quote {,});
     let init_fields_q = init_fields_quoted.join(quote {,});
+    let layout_struct_members_q = layout_struct_members.join(quote {,});
+    let layout_constructors_q = layout_constructors.join(quote {,});
+
+    let module_name = host.name();
+    let composed_layout_global_name = f"STORAGE_LAYOUT_COMPOSED_{module_name}".quoted_contents();
+    let module_name_str = f"{module_name}".as_quoted_str();
+    let module_name_len: u32 = unquote!(quote { $module_name_str.as_bytes().len()});
 
     quote {
         pub struct ComposedStorage<Context> {
@@ -718,5 +740,20 @@ pub(crate) comptime fn generate_composed_storage_quoted(host: Module, template_k
                 }
             }
         }
+
+        pub struct ComposedStorageLayoutFields {
+            $layout_struct_members_q
+        }
+
+        pub struct ComposedStorageLayout<let N: u32> {
+            pub contract_name: str<N>,
+            pub fields: ComposedStorageLayoutFields,
+        }
+
+        #[abi(storage)]
+        pub global $composed_layout_global_name: ComposedStorageLayout<$module_name_len> = ComposedStorageLayout {
+            contract_name: $module_name_str,
+            fields: ComposedStorageLayoutFields { $layout_constructors_q },
+        };
     }
 }
