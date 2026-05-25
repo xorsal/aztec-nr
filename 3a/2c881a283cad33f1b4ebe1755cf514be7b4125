@@ -1,0 +1,11 @@
+aztec/src/macros/compose_template.nr
+  s_cbf105d8ade306::t_873526c1da4550 484-559,576-589,606-656
+  s_cbf105d8ade306::t_28c012cf7e47cc 51
+  s_cbf105d8ade306::t_1b5815b49b49fd 560-575,590-605
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.0",
+  "base_commit_sha": "3a2c881a283cad33f1b4ebe1755cf514be7b4125",
+  "prompts": {}
+}
