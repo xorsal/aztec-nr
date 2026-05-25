@@ -1,0 +1,28 @@
+composition_tests/storage_merge_three_way/src/test/utils.nr
+  s_cbf105d8ade306::t_9128a1304bd821 1-16
+Nargo.toml
+  s_cbf105d8ade306::t_ac95db22d95caa 22
+  s_cbf105d8ade306::t_d64226987a0036 17-20
+  s_cbf105d8ade306::t_b20bb992ca2340 15
+  s_cbf105d8ade306::t_f7600a2f5dca7a 21
+  s_cbf105d8ade306::t_79d853a573456b 16
+composition_tests/storage_merge_three_way/src/test.nr
+  s_cbf105d8ade306::t_6e87da3d1a1fb3 1-2
+composition_tests/storage_merge_three_way/Nargo.toml
+  s_cbf105d8ade306::t_b8988f64ba5a1c 1-9
+composition_tests/storage_merge_three_way/src/main.nr
+  s_cbf105d8ade306::t_d032b553f7a6ac 1-62
+composition_tests/storage_merge_three_way/src/test/three_way_dedup.nr
+  s_cbf105d8ade306::t_95850fc795819d 1-72
+.github/workflows/tests.yml
+  s_cbf105d8ade306::t_8da203f40b9c0b 43,59
+  s_cbf105d8ade306::t_d50de9a45c64c2 60
+  s_cbf105d8ade306::t_3a882a6fa5df35 44
+  s_cbf105d8ade306::t_6bfdb16369885c 37-42,53-58
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.0",
+  "base_commit_sha": "1ed229b299ab0862c27a1d07f9e1ad24c3b9ddd5",
+  "prompts": {}
+}
