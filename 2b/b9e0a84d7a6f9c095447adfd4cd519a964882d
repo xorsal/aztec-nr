@@ -1,0 +1,28 @@
+aztec/src/macros/internals_functions_generation/internal.nr
+  s_cbf105d8ade306::t_d97e0df46abf85 1
+  s_cbf105d8ade306::t_2bb1633de199c0 19-20,22,72-73,75
+aztec/src/macros/internals_functions_generation/external/public.nr
+  s_cbf105d8ade306::t_ecd1f4ff02017c 2,6
+composition_failure_tests/failure_contracts/storage_shape_mismatch/expected_error.txt
+  s_cbf105d8ade306::t_d3cd3966d2b9e2 1
+aztec/src/macros/compose_template.nr
+  s_cbf105d8ade306::t_597eddb2780361 696-704
+  s_cbf105d8ade306::t_28c012cf7e47cc 51
+  s_cbf105d8ade306::t_072fc9dd8a8f87 553-594
+  s_cbf105d8ade306::t_86c60c3f5fec0a 503-528
+  s_cbf105d8ade306::t_431b79a68a9762 11
+  s_cbf105d8ade306::t_873526c1da4550 484-502,529-552,595-627,644-657,674-695,705-728
+  s_cbf105d8ade306::t_1b5815b49b49fd 628-643,658-673
+aztec/src/macros/internals_functions_generation/external/private.nr
+  s_cbf105d8ade306::t_bef468d1a837c0 15
+  s_cbf105d8ade306::t_48bc41469dd84a 2,7
+  s_cbf105d8ade306::t_2edd14ab5ca44b 34-36,38
+aztec/src/macros/internals_functions_generation/external/utility.nr
+  s_cbf105d8ade306::t_913a9e6b7b09b7 1-2,7-9,11
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.0",
+  "base_commit_sha": "2bb9e0a84d7a6f9c095447adfd4cd519a964882d",
+  "prompts": {}
+}
