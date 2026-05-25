@@ -1,0 +1,14 @@
+aztec/src/macros/functions/mod.nr
+  s_cbf105d8ade306::t_ccd56f51db1ef2 14
+  s_cbf105d8ade306::t_8753a8857f309e 345-376
+aztec/src/macros/utils.nr
+  s_cbf105d8ade306::t_d1bf9b8267694f 46-49,158-195
+aztec/src/macros/functions/auth_registry.nr
+  s_cbf105d8ade306::t_9c9f962a6970c0 10-17
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.0",
+  "base_commit_sha": "382c838139885c9238a0286d341178a55caa7aa3",
+  "prompts": {}
+}
