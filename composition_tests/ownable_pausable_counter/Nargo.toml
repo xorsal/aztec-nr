@@ -1,5 +1,5 @@
 [package]
-name = "ownable_pausable_counter_contract"
+name = "composition_ownable_pausable_counter_contract"
 type = "contract"
 authors = ["Wonderland"]
 compiler_version = ">=1.0.0"

@@ -5,7 +5,7 @@ pub unconstrained fn setup() -> (TestEnvironment, AztecAddress, AztecAddress, Az
     let mut env = TestEnvironment::new();
     let owner = env.create_light_account();
     let stranger = env.create_light_account();
-    let host = env.deploy("@ownable_pausable_counter_contract/OwnablePausableCounter").with_public_initializer(
+    let host = env.deploy("@composition_ownable_pausable_counter_contract/OwnablePausableCounter").with_public_initializer(
         owner,
         OwnablePausableCounter::interface().constructor(owner),
     );

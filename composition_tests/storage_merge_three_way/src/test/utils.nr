@@ -7,7 +7,7 @@ pub unconstrained fn setup(
     let mut env = TestEnvironment::new();
     let owner = env.create_light_account();
     let stranger = env.create_light_account();
-    let host = env.deploy("@storage_merge_three_way_contract/StorageMergeThreeWayHost").with_public_initializer(
+    let host = env.deploy("@composition_storage_merge_three_way_contract/StorageMergeThreeWayHost").with_public_initializer(
         owner,
         StorageMergeThreeWayHost::interface().constructor(owner, initial_treasury),
     );
