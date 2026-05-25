@@ -1,0 +1,32 @@
+composition_tests/ownable_pausable_counter/src/test/mixins_compose.nr
+  s_cbf105d8ade306::t_49aba12c049be5 1-89
+composition_tests/ownable_pausable_counter/src/main.nr
+  s_cbf105d8ade306::t_2607c83e843a69 1-57
+composition_tests/fixtures/src/lib.nr
+  s_cbf105d8ade306::t_07a4410f662005 26-27
+  s_cbf105d8ade306::t_f0d46f723c46df 18-25
+Nargo.toml
+  s_cbf105d8ade306::t_f7600a2f5dca7a 21
+  s_cbf105d8ade306::t_b20bb992ca2340 15
+  s_cbf105d8ade306::t_d64226987a0036 17-20
+  s_cbf105d8ade306::t_79d853a573456b 16
+composition_tests/ownable_pausable_counter/Nargo.toml
+  s_cbf105d8ade306::t_bf8062defad692 1-9
+composition_tests/ownable_pausable_counter/src/test.nr
+  s_cbf105d8ade306::t_bf67615969ba2c 1-2
+composition_tests/ownable_pausable_counter/src/test/utils.nr
+  s_cbf105d8ade306::t_4c385dbe484d48 1-14
+composition_tests/fixtures/src/aztec_ownable_mixin.nr
+  s_cbf105d8ade306::t_f8762e4cde02af 1-50
+.github/workflows/tests.yml
+  s_cbf105d8ade306::t_8da203f40b9c0b 43,58
+  s_cbf105d8ade306::t_6bfdb16369885c 37-42,52-57
+composition_tests/fixtures/src/aztec_pausable_mixin.nr
+  s_cbf105d8ade306::t_7bd72ee208f711 1-60
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.0",
+  "base_commit_sha": "bda77490e9710f7f146ac0414ac6dd880e7029b0",
+  "prompts": {}
+}
