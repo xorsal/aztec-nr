@@ -1,0 +1,25 @@
+composition_tests/storage_merge_three_way/src/test/utils.nr
+  s_d33a579dbd68d5::t_3312c819a89917 10
+composition_tests/storage_merge_three_way/Nargo.toml
+  s_d33a579dbd68d5::t_3312c819a89917 2
+composition_tests/ownable_pausable_counter/Nargo.toml
+  s_d33a579dbd68d5::t_3312c819a89917 2
+composition_tests/ownable_pausable_counter/src/test/utils.nr
+  s_d33a579dbd68d5::t_3312c819a89917 8
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.0",
+  "base_commit_sha": "c9cc9901b8075c1c758edb40411ee4c35175ade1",
+  "prompts": {},
+  "sessions": {
+    "s_d33a579dbd68d5": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "a39ed520-13aa-4c8c-8016-c9b6b8b0ae16",
+        "model": "claude-opus-4-7"
+      },
+      "human_author": "xorsal <zorzal@wonderland.xyz>"
+    }
+  }
+}
