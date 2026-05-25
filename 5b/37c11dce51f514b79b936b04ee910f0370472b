@@ -1,0 +1,17 @@
+aztec/src/macros/aztec.nr
+  s_cbf105d8ade306::t_93a74887d6668b 260-269,275,383-386
+aztec/src/macros/compose_template.nr
+  s_cbf105d8ade306::t_28c012cf7e47cc 51
+  s_cbf105d8ade306::t_873526c1da4550 484-502,529-550,553-566,571-585,602-615,632-653,659-667,669-679,681-682,511,522-523,526-527
+  s_cbf105d8ade306::t_072fc9dd8a8f87 551-552
+  s_cbf105d8ade306::t_1b5815b49b49fd 586-601,616-631
+  s_cbf105d8ade306::t_b5e1776d74ae4c 668,680,525,528
+  s_cbf105d8ade306::t_431b79a68a9762 11
+  s_cbf105d8ade306::t_86c60c3f5fec0a 503-510,512-521,524
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.1",
+  "base_commit_sha": "5b37c11dce51f514b79b936b04ee910f0370472b",
+  "prompts": {}
+}
