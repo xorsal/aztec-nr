@@ -1,5 +1,5 @@
 [package]
-name = "storage_merge_dedup_contract"
+name = "composition_storage_merge_dedup_contract"
 type = "contract"
 authors = ["Wonderland"]
 compiler_version = ">=1.0.0"

@@ -4,7 +4,7 @@ pub unconstrained fn setup() -> (TestEnvironment, AztecAddress, AztecAddress) {
     let mut env = TestEnvironment::new();
     let caller = env.create_light_account();
     let host = env
-        .deploy("@storage_merge_transitive_contract/StorageMergeTransitiveHost")
+        .deploy("@composition_storage_merge_transitive_contract/StorageMergeTransitiveHost")
         .without_initializer();
 
     (env, caller, host)
