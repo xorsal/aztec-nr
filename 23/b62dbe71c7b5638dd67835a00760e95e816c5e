@@ -1,0 +1,20 @@
+aztec/src/macros/internals_functions_generation/external/public.nr
+  s_cbf105d8ade306::t_ecd1f4ff02017c 2,8
+  s_cbf105d8ade306::t_dbeaf08d27cd28 32-47,55-59,122-125,126-133,141
+  s_cbf105d8ade306::t_f9e84584891477 3-5,7
+aztec/src/macros/internals_functions_generation/external/helpers.nr
+  s_cbf105d8ade306::t_425c4a72b60af5 2
+  s_cbf105d8ade306::t_80ba7d1ec83715 121-148
+aztec/src/macros/internals_functions_generation/external/private.nr
+  s_cbf105d8ade306::t_48bc41469dd84a 2
+  s_cbf105d8ade306::t_bef468d1a837c0 15
+  s_cbf105d8ade306::t_2edd14ab5ca44b 34-36,38
+  s_cbf105d8ade306::t_d018ce1b960509 127,128-137
+  s_cbf105d8ade306::t_2633a920656118 6-7
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.1",
+  "base_commit_sha": "23b62dbe71c7b5638dd67835a00760e95e816c5e",
+  "prompts": {}
+}
